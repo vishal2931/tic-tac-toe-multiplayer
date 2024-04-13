@@ -19,7 +19,7 @@ class PlayerFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
-            'lobby_id' => Lobby::inRandomOrder()->first()->id
+            'lobby_id' => Lobby::inRandomOrder()->first()->id,
         ];
     }
 }

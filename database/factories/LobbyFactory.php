@@ -18,7 +18,7 @@ class LobbyFactory extends Factory
     {
         return [
             'name' => $this->faker->word(),
-            'joining_code' => $this->faker->randomNumber(6),
+            'joining_code' => $this->faker->randomNumber(config('custom.joining_code_length')),
         ];
     }
 }
