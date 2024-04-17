@@ -2,11 +2,10 @@
 
 namespace Database\Seeders;
 
-use App\Models\Lobby;
-use App\Models\Player;
-use App\Models\User;
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\User;
+use App\Models\Player;
+use App\Models\Lobby;
 
 class DatabaseSeeder extends Seeder
 {

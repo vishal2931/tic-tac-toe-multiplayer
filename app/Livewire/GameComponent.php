@@ -16,10 +16,6 @@ class GameComponent extends Component
 
     public $moves;
 
-    public $player_1_sign = 'O';
-
-    public $player_2_sign = 'X';
-
     public $player_moves = [];
 
     public $possibilities = [
@@ -55,38 +51,31 @@ class GameComponent extends Component
     {
         $this->moves[] = $data['index'];
         $this->player_moves[$data['player']][] = $data['index'];
-        if(count($this->moves) > 4)
-        {
+        if (count($this->moves) > 4) {
             $this->checkForWin();
         }
     }
 
     public function checkForWin()
     {
-        $winner = '';
+        $winner = null;
 
-        collect($this->possibilities)->each(function($value) use(&$winner){
-
-            if(count(array_intersect($value, $this->player_moves[$this->data['players'][0]->id])) == count($value))
-            {
+        foreach ($this->possibilities as $possibility) {
+            if ($this->checkPlayerMoves($this->data['players'][0]->id, $possibility)) {
                 $winner = $this->data['players'][0];
-                return;
-            }
-            else if(count(array_intersect($value, $this->player_moves[$this->data['players'][1]->id])) == count($value))
-            {
+                break;
+            } elseif ($this->checkPlayerMoves($this->data['players'][1]->id, $possibility)) {
                 $winner = $this->data['players'][1];
-                return;
+                break;
             }
-        });
+        }
 
-        if($winner)
-        {
-            $this->dispatch('game-status',["status" => 'win','player'=>$winner]);
+        if ($winner) {
+            $this->dispatch('game-status', ['status' => 'win', 'player' => $winner]);
+        } elseif (count($this->moves) == 9) {
+            $this->dispatch('game-status', ['status' => 'tie']);
         }
-        else if(count($this->moves) == 9)
-        {
-            $this->dispatch('game-status',["status" => 'tie']);
-        }
+
     }
 
     public function playAgain()
@@ -100,5 +89,10 @@ class GameComponent extends Component
         $this->player_moves = [];
         $this->moves = [];
         $this->dispatch('reset-game');
+    }
+
+    private function checkPlayerMoves($playerId, $possibility)
+    {
+        return count(array_intersect($possibility, $this->player_moves[$playerId])) == count($possibility);
     }
 }

@@ -2,10 +2,10 @@
 
 namespace App\Livewire;
 
-use App\Events\StartGameEvent;
-use App\Models\Lobby;
-use Livewire\Attributes\On;
 use Livewire\Component;
+use Livewire\Attributes\On;
+use App\Models\Lobby;
+use App\Events\StartGameEvent;
 
 class LobbyComponent extends Component
 {
@@ -27,7 +27,6 @@ class LobbyComponent extends Component
     public function redirectToGame()
     {
         StartGameEvent::dispatch();
-        //$this->redirect(route('play.game',['joining_code' => $this->lobby->joining_code]));
     }
 
     #[On('echo:tic-tac-toe-channel,SyncPlayersEvent')]
