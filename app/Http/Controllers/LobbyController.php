@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Cache;
-use App\Models\Player;
-use App\Models\Lobby;
-use App\Http\Requests\LobbyStoreRequest;
-use App\Http\Requests\LobbyJoinRequest;
 use App\Events\SyncPlayersEvent;
+use App\Http\Requests\LobbyJoinRequest;
+use App\Http\Requests\LobbyStoreRequest;
+use App\Models\Lobby;
+use App\Models\Player;
+use Illuminate\Support\Facades\Cache;
 
 class LobbyController extends Controller
 {

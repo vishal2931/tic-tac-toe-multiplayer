@@ -2,10 +2,10 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use Livewire\Attributes\On;
-use App\Models\Lobby;
 use App\Events\StartGameEvent;
+use App\Models\Lobby;
+use Livewire\Attributes\On;
+use Livewire\Component;
 
 class LobbyComponent extends Component
 {
