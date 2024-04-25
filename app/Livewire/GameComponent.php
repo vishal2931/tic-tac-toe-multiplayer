@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Events\GameMovesEvent;
+use App\Events\PlayerTurnEvent;
 use App\Events\ResetGameEvent;
 use App\Models\Lobby;
 use Livewire\Attributes\On;
@@ -33,7 +34,9 @@ class GameComponent extends Component
     {
         $this->lobby = Lobby::where('joining_code', $joining_code)->firstOrFail();
         $this->data = cache()->get('game_data_'.$this->lobby->joining_code);
-
+        if (session('player') == $this->data['players'][0]['id']) {
+            PlayerTurnEvent::dispatch(session('player'));
+        }
     }
 
     public function render()
@@ -43,7 +46,9 @@ class GameComponent extends Component
 
     public function makeMove($index)
     {
+        $opposite_player_id = session('player') == $this->data['players'][0]->id ? $this->data['players'][1]->id : $this->data['players'][0]->id;
         GameMovesEvent::dispatch($index, session('player'));
+        PlayerTurnEvent::dispatch($opposite_player_id);
     }
 
     #[On('echo:tic-tac-toe-channel,GameMovesEvent')]
