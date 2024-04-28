@@ -2,10 +2,9 @@
 
 namespace App\Livewire;
 
-use App\Events\GameMovesEvent;
-use App\Events\PlayerTurnEvent;
-use App\Events\ResetGameEvent;
+use App\Events\GameProgressEvent;
 use App\Models\Lobby;
+use Illuminate\Support\Facades\Log;
 use Livewire\Attributes\On;
 use Livewire\Component;
 
@@ -35,7 +34,11 @@ class GameComponent extends Component
         $this->lobby = Lobby::where('joining_code', $joining_code)->firstOrFail();
         $this->data = cache()->get('game_data_'.$this->lobby->joining_code);
         if (session('player') == $this->data['players'][0]['id']) {
-            PlayerTurnEvent::dispatch(session('player'));
+            GameProgressEvent::dispatch([
+                'action' => 'player-turn',
+                'joining_code' => $this->lobby->joining_code,
+                'player_turn_id' => session('player'),
+            ]);
         }
     }
 
@@ -47,18 +50,19 @@ class GameComponent extends Component
     public function makeMove($index)
     {
         $opposite_player_id = session('player') == $this->data['players'][0]->id ? $this->data['players'][1]->id : $this->data['players'][0]->id;
-        GameMovesEvent::dispatch($index, session('player'));
-        PlayerTurnEvent::dispatch($opposite_player_id);
-    }
 
-    #[On('echo:tic-tac-toe-channel,GameMovesEvent')]
-    public function registerMove($data)
-    {
-        $this->moves[] = $data['index'];
-        $this->player_moves[$data['player']][] = $data['index'];
-        if (count($this->moves) > 4) {
-            $this->checkForWin();
-        }
+        GameProgressEvent::dispatch([
+            'action' => 'game-moves',
+            'joining_code' => $this->lobby->joining_code,
+            'index' => $index,
+            'player' => session('player'),
+        ]);
+
+        GameProgressEvent::dispatch([
+            'action' => 'player-turn',
+            'joining_code' => $this->lobby->joining_code,
+            'player_turn_id' => $opposite_player_id,
+        ]);
     }
 
     public function checkForWin()
@@ -85,15 +89,26 @@ class GameComponent extends Component
 
     public function playAgain()
     {
-        ResetGameEvent::dispatch();
+        GameProgressEvent::dispatch([
+            'action' => 'reset-game',
+            'joining_code' => $this->lobby->joining_code,
+        ]);
     }
 
-    #[On('echo:tic-tac-toe-channel,ResetGameEvent')]
-    public function resetGame()
+    #[On('echo:tictactoechannel.{lobby.joining_code},GameProgressEvent')]
+    public function eventListener($data)
     {
-        $this->player_moves = [];
-        $this->moves = [];
-        $this->dispatch('reset-game');
+        if ($data['action'] == 'reset-game') {
+            $this->player_moves = [];
+            $this->moves = [];
+            $this->dispatch('reset-game');
+        } elseif ($data['action'] == 'game-moves') {
+            $this->moves[] = $data['index'];
+            $this->player_moves[$data['player']][] = $data['index'];
+            if (count($this->moves) > 4) {
+                $this->checkForWin();
+            }
+        }
     }
 
     private function checkPlayerMoves($playerId, $possibility)

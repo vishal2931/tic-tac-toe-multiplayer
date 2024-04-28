@@ -8,18 +8,33 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class PlayerTurnEvent implements ShouldBroadcastNow
+class GameProgressEvent implements ShouldBroadcastNow
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
+
+    public $index;
+
+    public $player;
+
+    public $joining_code;
+
+    public $action;
 
     public $player_turn_id = '';
 
     /**
      * Create a new event instance.
      */
-    public function __construct($player_turn_id)
+    public function __construct($data)
     {
-        $this->player_turn_id = $player_turn_id;
+        $this->action = $data['action'];
+        $this->joining_code = $data['joining_code'];
+        if ($data['action'] == 'game-moves') {
+            $this->index = $data['index'];
+            $this->player = $data['player'];
+        } elseif ($data['action'] == 'player-turn') {
+            $this->player_turn_id = $data['player_turn_id'];
+        }
     }
 
     /**
@@ -30,7 +45,7 @@ class PlayerTurnEvent implements ShouldBroadcastNow
     public function broadcastOn(): array
     {
         return [
-            new Channel('tic-tac-toe-channel'),
+            new Channel('tictactoechannel.'.$this->joining_code),
         ];
     }
 }

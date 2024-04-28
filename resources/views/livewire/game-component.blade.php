@@ -32,6 +32,7 @@
     @script
      <script>
             let player_id = {{ session("player")  }};
+            let joining_code = {{ $lobby->joining_code  }};
             let opposite_player_name = "{{ (session('player') == $data['players'][0]->id ? $data['players'][1]->name : $data['players'][0]->name) }}";
             $wire.on('game-status', (event) => {
                 document.getElementById('gameStatusModal').classList.remove('hidden');
@@ -49,21 +50,23 @@
                 document.getElementById('gameStatusModal').classList.add('hidden');
                 document.getElementById('modalMessage').innerText = '';
             });
-
-            Echo.channel('tic-tac-toe-channel')
-            .listen('PlayerTurnEvent', e => {
-                if(player_id != e.player_turn_id)
+            Echo.channel('tictactoechannel.'+joining_code)
+            .listen('GameProgressEvent', e => {
+                if(e.action == 'player-turn')
                 {
-                    document.getElementById('game-board').classList.add('bg-red-400');
-                    document.getElementById('player-turn').innerText = opposite_player_name + ' Turn';
-                }else{
-                    
-                    document.getElementById('game-board').classList.remove('bg-red-400');
-                    document.getElementById('player-turn').innerText = 'Your Turn';
+                    if(player_id != e.player_turn_id)
+                    {
+                        //document.getElementById('game-board').classList.add('bg-red-400');
+                        document.getElementById('player-turn').innerText = opposite_player_name + ' Turn';
+                    }else{
+                        
+                        //document.getElementById('game-board').classList.remove('bg-red-400');
+                        document.getElementById('player-turn').innerText = 'Your Turn';
+                    }
                 }
+
             })
 
         </script>
-
     @endscript
 </div>

@@ -1,5 +1,5 @@
 <div>
-    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-pink-500 to-red-500">
+    <div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 via-red-500 to-red-500">
         <div class="bg-white shadow-lg rounded-lg p-8 w-full md:w-1/2 lg:w-1/3">
             <h1 class="text-center text-4xl font-bold text-gray-800 mb-3">Waiting Area</h1>
             <h1 class="text-center text-2xl font-bold text-gray-800 mb-8">Joining Code : {{ $lobby->joining_code }}</h1>

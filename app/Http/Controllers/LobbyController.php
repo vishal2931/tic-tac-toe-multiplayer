@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Events\SyncPlayersEvent;
+use App\Events\GameProgressEvent;
 use App\Http\Requests\LobbyJoinRequest;
 use App\Http\Requests\LobbyStoreRequest;
 use App\Models\Lobby;
@@ -65,7 +65,10 @@ class LobbyController extends Controller
         $data['players']->push($player);
         Cache::put('game_data_'.$lobby->joining_code, $data);
         session()->put('player', $player->id);
-        SyncPlayersEvent::dispatch();
+        GameProgressEvent::dispatch([
+            'action' => 'sync-player',
+            'joining_code' => $lobby->joining_code,
+        ]);
 
         return redirect()->route('lobby.area', ['joining_code' => $lobby->joining_code])->with('join', 'success');
     }
